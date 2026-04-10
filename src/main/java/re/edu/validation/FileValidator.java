@@ -1,6 +1,7 @@
 package re.edu.validation;
 
 import org.springframework.web.multipart.MultipartFile;
+import re.edu.exception.BadRequestException;
 
 import java.util.List;
 
@@ -12,17 +13,22 @@ public class FileValidator {
             "image/jpg"
     );
 
+    private static final long MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
     public static void validateImage(MultipartFile file) {
+
         if (file == null || file.isEmpty()) {
-            throw new RuntimeException("File is required");
+            throw new BadRequestException("Vui lòng upload ảnh");
         }
 
-        if (!ALLOWED_TYPES.contains(file.getContentType())) {
-            throw new RuntimeException("Invalid file type");
+        String contentType = file.getContentType();
+
+        if (contentType == null || !ALLOWED_TYPES.contains(contentType)) {
+            throw new BadRequestException("Chỉ chấp nhận file jpg, jpeg, png");
         }
 
-        if (file.getSize() > 5 * 1024 * 1024) {
-            throw new RuntimeException("File too large (max 5MB)");
+        if (file.getSize() > MAX_SIZE) {
+            throw new BadRequestException("File không được vượt quá 5MB");
         }
     }
 }
